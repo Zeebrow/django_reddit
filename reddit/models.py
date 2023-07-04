@@ -101,12 +101,9 @@ class Comment(MttpContentTypeAware):
 
 
 class Vote(models.Model):
-    user = models.ForeignKey('users.RedditUser',
-                                  on_delete=models.deletion.CASCADE)
-    submission = models.ForeignKey(Submission,
-                                  on_delete=models.deletion.CASCADE)
-    vote_object_type = models.ForeignKey(ContentType,
-                                  on_delete=models.deletion.CASCADE)
+    user = models.ForeignKey('users.RedditUser', on_delete=models.deletion.CASCADE)
+    submission = models.ForeignKey(Submission, on_delete=models.deletion.CASCADE)
+    vote_object_type = models.ForeignKey(ContentType, on_delete=models.deletion.CASCADE)
     vote_object_id = models.PositiveIntegerField()
     vote_object = GenericForeignKey('vote_object_type', 'vote_object_id')
     value = models.IntegerField(default=0)

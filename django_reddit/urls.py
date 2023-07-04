@@ -14,17 +14,23 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf.urls import include
-from django.urls import URLPattern
+from django.urls import URLPattern, re_path, URLResolver
 from django.contrib import admin
 from django.conf import settings
 from django.views.generic import TemplateView
+print(settings.ADMIN_URL)
+# print(admin.site.urls)
 
 urlpatterns = [
+    # @@@
+    re_path(settings.ADMIN_URL, admin.site.urls),
     # url(r'^$', TemplateView.as_view(template_name='index.html'), name="home"),
     # url(r'^users/', include('users.urls')),
-    URLPattern(r'^', include("reddit.urls")),
-    URLPattern(r'^', include("users.urls"))
+    re_path(r'^', include("reddit.urls")),
+    re_path(r'^', include("users.urls"))
 ]
 
-for admin_site_url in admin.site.urls:
-    urlpatterns.append( admin_site_url)
+# for admin_site_url in admin.site.urls:
+#     for asu in admin_site_url:
+#         if isinstance(asu, URLPattern) or isinstance(asu, URLResolver):
+#             urlpatterns.append(asu)
