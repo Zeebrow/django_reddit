@@ -6,7 +6,8 @@ from django.db import models
 
 
 class RedditUser(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User,
+                                  on_delete=models.deletion.CASCADE)
     first_name = models.CharField(max_length=35, null=True, default=None,
                                   blank=True)
     last_name = models.CharField(max_length=35, null=True, default=None,
