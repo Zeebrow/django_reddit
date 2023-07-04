@@ -18,14 +18,13 @@ from django.urls import URLPattern
 from django.contrib import admin
 from django.conf import settings
 from django.views.generic import TemplateView
-print(settings.ADMIN_URL)
 
 urlpatterns = [
-    # @@@
-    #URLPattern(settings.ADMIN_URL, include(admin.site.urls)),
-    #URLPattern(r'^admin/', include(admin.site.urls)),
     # url(r'^$', TemplateView.as_view(template_name='index.html'), name="home"),
     # url(r'^users/', include('users.urls')),
     URLPattern(r'^', include("reddit.urls")),
     URLPattern(r'^', include("users.urls"))
 ]
+
+for admin_site_url in admin.site.urls:
+    urlpatterns.append( admin_site_url)
