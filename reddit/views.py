@@ -138,6 +138,7 @@ def post_comment(request, comment_id=None):
         orig_comment = Comment.objects.get(id=comment_id)
 
         print(edit_raw_comment)
+        print(orig_comment.html_comment)
         if edit_raw_comment == orig_comment.raw_comment:
             return JsonResponse({'msg': "You have to write something new!"})
 

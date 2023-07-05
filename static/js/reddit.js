@@ -213,7 +213,7 @@ function editCommentForm(commentId, origText) {
                                 <div class="form-group comment-group">\
                                     <label for="editCommentContent" class="col-lg-2 control-label">Edit comment</label>\
                                     <div class="col-lg-10">\
-                                        <textarea id="editCommentContent" class="form-control" rows="3" placeholder="${origText}"></textarea>\
+                                        <textarea id="editCommentContent" class="form-control" rows="3">${origText}</textarea>\
                                         <span id="postResponse" class="text-success" style="display: none"></span>\
                                     </div>\
                                 </div>\
@@ -240,8 +240,6 @@ $('a[name="editButton"]').click(function () {
         console.log("commentId: ", commentId)
         comment.append(editCommentForm(commentId, commentText));
         var $form = $mediaBody.find('#editCommentForm');
-        var newCommentText = $mediaBody.find('#editCommentContent').val();
-        $form.data('editCommentContent', "new text");
         $form.submit(function (event) {
             console.log($form.data())
             editEvent(event, $(this));
