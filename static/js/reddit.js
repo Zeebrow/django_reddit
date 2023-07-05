@@ -96,6 +96,39 @@ function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
 
+function editEvent(event, form) {
+    event.preventDefault();
+    var $form = form;
+    var data = $form.data();
+    url = $form.attr("action");
+    editCommentContent = $form.find("textarea#editCommentContent").val();
+    console.log(editCommentContent)
+
+    var csrftoken = getCookie('csrftoken');
+
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
+    var doPost = $.post(url, {
+        parentType: data.parentType,
+        parentId: data.parentId,
+        editCommentContent: editCommentContent
+    });
+
+    doPost.done(function (response) {
+        var errorLabel = $form.find("span#postResponse");
+        if (response.msg) {
+            errorLabel.text(response.msg);
+            errorLabel.removeAttr('style');
+        }
+    });
+}
+
 function submitEvent(event, form) {
     event.preventDefault();
     var $form = form;
@@ -116,7 +149,7 @@ function submitEvent(event, form) {
     var doPost = $.post(url, {
         parentType: data.parentType,
         parentId: data.parentId,
-        commentContent: commentContent
+        commentContent: commentContent,
     });
 
     doPost.done(function (response) {
@@ -163,6 +196,59 @@ $('a[name="replyButton"]').click(function () {
         });
     } else {
         $commentForm = $mediaBody.find('#commentForm:first');
+        if ($commentForm.attr('style') == null) {
+            $commentForm.css('display', 'none')
+        } else {
+            $commentForm.removeAttr('style')
+        }
+    }
+
+});
+
+function editCommentForm(commentId, origText) {
+    var editCommentForm = `<form id="editCommentForm" class="form-horizontal"\
+                                action="/post/comment/${commentId}"\
+                                data-parent-type="self">\
+                                <fieldset>\
+                                <div class="form-group comment-group">\
+                                    <label for="editCommentContent" class="col-lg-2 control-label">Edit comment</label>\
+                                    <div class="col-lg-10">\
+                                        <textarea id="editCommentContent" class="form-control" rows="3" placeholder="${origText}"></textarea>\
+                                        <span id="postResponse" class="text-success" style="display: none"></span>\
+                                    </div>\
+                                </div>\
+                                <div class="form-group">\
+                                    <div class="col-lg-10 col-lg-offset-2">\
+                                        <button type="submit" class="btn btn-primary">Submit</button>\
+                                        <button class="btn cancel-edit">Cancel</button>\
+                                    </div>\
+                                </div>\
+                            </fieldset>\
+                        </form>`;
+    return editCommentForm
+
+
+}
+
+$('a[name="editButton"]').click(function () {
+    var $mediaBody = $(this).parent().parent().parent().parent();
+    let comment = $mediaBody.parent().find(".comment-content:first");
+    if ($mediaBody.find('#editCommentForm').length == 0) {
+        comment.find("p").hide();
+        let commentText = comment.find("p").text()
+        let commentId = $mediaBody.data().parentId
+        console.log("commentId: ", commentId)
+        comment.append(editCommentForm(commentId, commentText));
+        var $form = $mediaBody.find('#editCommentForm');
+        var newCommentText = $mediaBody.find('#editCommentContent').val();
+        $form.data('editCommentContent', "new text");
+        $form.submit(function (event) {
+            console.log($form.data())
+            editEvent(event, $(this));
+        });
+    } else {
+        comment.find("p").show();
+        $commentForm = $mediaBody.find('#editCommentForm');
         if ($commentForm.attr('style') == null) {
             $commentForm.css('display', 'none')
         } else {

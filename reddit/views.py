@@ -76,6 +76,8 @@ def comments(request, thread_id=None):
     this_submission = get_object_or_404(Submission, id=thread_id)
 
     thread_comments = Comment.objects.filter(submission=this_submission)
+    # for thread_comment in thread_comments:
+    #     if thread_comment.author == 
 
     if request.user.is_authenticated:
         try:
@@ -116,7 +118,7 @@ def comments(request, thread_id=None):
 
 
 @post_only
-def post_comment(request):
+def post_comment(request, comment_id=None):
     if not request.user.is_authenticated:
         return JsonResponse({'msg': "You need to log in to post new comments."})
 
@@ -124,30 +126,52 @@ def post_comment(request):
     parent_id = request.POST.get('parentId', None)
     raw_comment = request.POST.get('commentContent', None)
 
-    if not all([parent_id, parent_type]) or \
-            parent_type not in ['comment', 'submission'] or \
-        not parent_id.isdigit():
+    # bad, could maliciously edit other people's comments this way
+    edit_raw_comment = request.POST.get('editCommentContent', None)
+    print(f"{parent_id=}")
+    print(f"{comment_id=}")
+    print(f"{edit_raw_comment=}")
+    if comment_id:
+        if not edit_raw_comment:
+            return JsonResponse({'msg': "You have to write something!"})
+
+        orig_comment = Comment.objects.get(id=comment_id)
+
+        print(edit_raw_comment)
+        if edit_raw_comment == orig_comment.raw_comment:
+            return JsonResponse({'msg': "You have to write something new!"})
+
+        orig_comment.edit(edit_raw_comment)
+        return JsonResponse({'msg': "Your comment has been edited."})
+    if parent_id:
+        if not all([parent_id, parent_type]) or \
+                parent_type not in ['comment', 'submission'] or \
+            not parent_id.isdigit():
+            return HttpResponseBadRequest()
+
+        if not raw_comment:
+            return JsonResponse({'msg': "You have to write something."})
+        author = RedditUser.objects.get(user=request.user)
+        parent_object = None
+        try:  # try and get comment or submission we're voting on
+            if parent_type == 'comment':
+                parent_object = Comment.objects.get(id=parent_id)
+            elif parent_type == 'submission':
+                parent_object = Submission.objects.get(id=parent_id)
+
+        except (Comment.DoesNotExist, Submission.DoesNotExist):
+            return HttpResponseBadRequest()
+
+        comment = Comment.create(author=author,
+                                raw_comment=raw_comment,
+                                parent=parent_object)
+
+        comment.save()
+        return JsonResponse({'msg': "Your comment has been posted."})
+    else:
         return HttpResponseBadRequest()
 
-    if not raw_comment:
-        return JsonResponse({'msg': "You have to write something."})
-    author = RedditUser.objects.get(user=request.user)
-    parent_object = None
-    try:  # try and get comment or submission we're voting on
-        if parent_type == 'comment':
-            parent_object = Comment.objects.get(id=parent_id)
-        elif parent_type == 'submission':
-            parent_object = Submission.objects.get(id=parent_id)
 
-    except (Comment.DoesNotExist, Submission.DoesNotExist):
-        return HttpResponseBadRequest()
-
-    comment = Comment.create(author=author,
-                             raw_comment=raw_comment,
-                             parent=parent_object)
-
-    comment.save()
-    return JsonResponse({'msg': "Your comment has been posted."})
 
 
 @post_only
