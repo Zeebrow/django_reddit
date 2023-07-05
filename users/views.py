@@ -20,6 +20,7 @@ def user_profile(request, username):
     user_comments = Comment.objects.filter(author=user.id).all()
     for comment in user_comments:
         print(comment.raw_comment)
+        print(comment.submission.linked_url)
 
     return render(request, 'public/profile.html', {
         'profile': profile,

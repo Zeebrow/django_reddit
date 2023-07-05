@@ -127,34 +127,22 @@
                 <h3>User Comments</h3>
                 {% for user_comment in user_comments %}
 
-                    <div class="media">
-                        <div class="media-left">
-                            <div class="vote"
-                                data-what-type="submission"
-                                data-what-id="{{ user_comment.id }}">
-                                <div><i class="fa fa-chevron-up {% if  sub_vote == 1 %} upvoted {% endif %}"
-                                        title="upvote" onclick="vote(this)"></i>
-                                </div>
-                                <div class="score" title="score">{{ submission.score }}</div>
-                                <div><i class="fa fa-chevron-down{% if  sub_vote == -1 %} downvoted {% endif %}"
-                                        title="downvote"
-                                        onclick="vote(this)"></i></div>
-                            </div>
-                        </div>
-                        <div class="media-body">
-                            <div class="reply-container">
-                                <a class="thread-title" href="{{ user_comment.linked_url }}">{{ user_comment.title }}</a>
-                                <br>
-                                <h6 class="thread-info">submitted {{ user_comment.timestamp|naturaltime }} by <a
-                                        href="/user/{{ user_comment.author_name }}">{{ user_comment.author_name }}</a></h6>
-                                {{ user_comment.raw_comment }}
-                                <ul class="buttons">
-                                    <li><a href="{{ user_comment.comments_url }}">{{ user_comment.comment_count }} comments</a></li>
-                                </ul>
-                            </div>
+                <div class="media">
+                    <div class="media-body" style="padding-left: 1.2em">
+                        <div class="reply-container">
+                            reply to <a href="/user/{{ user_comment.author_name }}">{{ user_comment.author_name }}</a>'s post  
+                            "<a style="font-size: large;" href="{{ user_comment.submission.linked_url }}">{{ user_comment.submission.title }}</a>" made {{ user_comment.timestamp|naturaltime }}
+                            <br>
+                            <div  style="border-left: 2px solid gray; padding-left: 5px">{{ user_comment.raw_comment }}</div>
+                            <ul class="buttons">
+                                <li><a href="{{ user_comment.comments_url }}">{{ user_comment.comment_count }} view full thread</a></li>
+                            </ul>
                         </div>
                     </div>
+                </div>
+                <br>
                 {% endfor %}
+                <br>
 
             </div>
             <p>some text</p>
