@@ -29,7 +29,6 @@ class Submission(ContentTypeAware):
 
     @property
     def linked_url(self):
-        return "/comments/{}".format(self.id)
         if self.url:
             return "{}".format(self.url)
         else:
